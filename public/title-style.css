@@ -1,0 +1,14 @@
+/* Estilo personalizado para o título da página */
+@font-face {
+  font-family: 'MuseoModerno';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./fonts/MuseoModerno-Bold.woff2') format('woff2');
+}
+
+/* Estilo para o título na aba do navegador */
+title {
+  font-family: 'MuseoModerno', cursive;
+  color: #00ff41;
+}
