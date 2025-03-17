@@ -1,29 +1,39 @@
-# Build stage com cache otimizado
+# Build stage
 FROM node:20-alpine as build
 
 WORKDIR /app
 
-# Copiar apenas os arquivos de dependência para aproveitar o cache
+# Copy package files
 COPY package*.json ./
 
-# Instalar dependências com cache
-RUN npm ci --silent
+# Install dependencies
+RUN npm install
 
-# Copiar arquivos do projeto
+# Copy project files
 COPY . .
 
-# Construir em modo de produção
+# Build the project
 RUN npm run build
 
-# Stage de produção - minimal
-FROM nginx:alpine
+# Production stage
+FROM nginx:stable-alpine
 
-# Copiar apenas os arquivos de build necessários
+# Copy built assets from build stage
 COPY --from=build /app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expor porta 80
+# Configuração direta do Nginx sem arquivo externo
+RUN echo '\
+server {\
+    listen 80;\
+    location / {\
+        root /usr/share/nginx/html;\
+        index index.html;\
+        try_files $uri $uri/ /index.html;\
+    }\
+}' > /etc/nginx/conf.d/default.conf
+
+# Expose port 80
 EXPOSE 80
 
-# Iniciar nginx
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
