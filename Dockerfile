@@ -1,31 +1,29 @@
-# Use uma versão específica do Node.js
+# Build stage com cache otimizado
 FROM node:20-alpine as build
 
 WORKDIR /app
 
-# Copiar arquivos do projeto
+# Copiar apenas os arquivos de dependência para aproveitar o cache
 COPY package*.json ./
 
-# Instalar dependências usando --legacy-peer-deps para evitar problemas
-RUN npm install --legacy-peer-deps
+# Instalar dependências com cache
+RUN npm ci --silent
 
-# Copiar todo o código fonte
+# Copiar arquivos do projeto
 COPY . .
 
-# Remover pasta build existente e criar nova
-RUN rm -rf build && npm run build
+# Construir em modo de produção
+RUN npm run build
 
-# Stage de produção com Nginx
-FROM nginx:stable-alpine
+# Stage de produção - minimal
+FROM nginx:alpine
 
-# Copiar arquivos gerados para o diretório do Nginx
+# Copiar apenas os arquivos de build necessários
 COPY --from=build /app/build /usr/share/nginx/html
-
-# Copiar configuração do Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expor porta 80
 EXPOSE 80
 
-# Comando para iniciar Nginx
+# Iniciar nginx
 CMD ["nginx", "-g", "daemon off;"]
