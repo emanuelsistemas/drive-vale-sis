@@ -1,31 +1,31 @@
-# Build stage
+# Use uma versão específica do Node.js
 FROM node:20-alpine as build
 
 WORKDIR /app
 
-# Copy package files
+# Copiar arquivos do projeto
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Instalar dependências usando --legacy-peer-deps para evitar problemas
+RUN npm install --legacy-peer-deps
 
-# Copy project files
+# Copiar todo o código fonte
 COPY . .
 
-# Build the project
-RUN npm run build
+# Remover pasta build existente e criar nova
+RUN rm -rf build && npm run build
 
-# Production stage
-FROM nginx:alpine
+# Stage de produção com Nginx
+FROM nginx:stable-alpine
 
-# Copy built assets from build stage
+# Copiar arquivos gerados para o diretório do Nginx
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Copy nginx configuration
+# Copiar configuração do Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
+# Expor porta 80
 EXPOSE 80
 
-# Start Nginx
+# Comando para iniciar Nginx
 CMD ["nginx", "-g", "daemon off;"]
