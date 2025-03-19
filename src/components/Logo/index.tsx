@@ -9,6 +9,7 @@ interface LogoProps {
   textOnly?: boolean;
   className?: string;
   onClick?: () => void;
+  horizontal?: boolean; // Nova propriedade para layout horizontal
 }
 
 const Logo: React.FC<LogoProps> = ({
@@ -16,11 +17,12 @@ const Logo: React.FC<LogoProps> = ({
   showText = true,
   textOnly = false,
   className,
-  onClick
+  onClick,
+  horizontal = false
 }) => {
   return (
     <LogoContainer className={className} onClick={onClick} size={size}>
-      <LogoWrapper>
+      <LogoWrapper className={horizontal ? 'horizontal' : ''}>
         {!textOnly && <LogoImage src={logoImage} alt="Logo nexo" size={size} />}
         {showText && (
           <LogoText size={size}>

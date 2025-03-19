@@ -17,8 +17,11 @@ export const Header = styled.header`
   border-bottom: 1px solid var(--input-border);
   box-shadow: var(--terminal-shadow);
 
-  h1 {
-    font-size: 22px;
+  /* Ajuste no alinhamento do Logo */
+  & > :first-child {
+    align-self: flex-start;
+    margin-bottom: 0 !important;
+    width: auto;
   }
 
   @media (max-width: 768px) {

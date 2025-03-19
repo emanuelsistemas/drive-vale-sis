@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Container, 
+  Header,
   Content, 
   MainContent,
-  Sidebar,
-  SidebarHeader,
-  SidebarMenu,
+  UserInfo,
   LogoutButton,
   UploadButton,
   FileList,
@@ -103,23 +102,22 @@ const Dashboard: React.FC = () => {
   
   return (
     <Container>
+      <Header>
+        <Logo size="small" horizontal={true} />
+        <UserInfo>
+          <span>{user?.email}</span>
+          <LogoutButton onClick={handleLogout}>
+            <i className="fas fa-sign-out-alt"></i> Sair
+          </LogoutButton>
+        </UserInfo>
+      </Header>
+      
       <Content>
-        <Sidebar>
-          <SidebarHeader>
-            <div className="logo-container">
-              <Logo />
-            </div>
-            <div className="user-info">
-              <div className="user-name">{user?.nome || 'Usuário'}</div>
-              <div className="user-email">{user?.email}</div>
-            </div>
-          </SidebarHeader>
-          
-          <SidebarMenu>
+        <MainContent>
+          <div className="actions">
             <label htmlFor="file-upload">
               <UploadButton as="span" disabled={uploading}>
-                <i className="fas fa-upload"></i> 
-                <span className="sidebar-text">{uploading ? 'Enviando...' : 'Upload'}</span>
+                <i className="fas fa-upload"></i> {uploading ? 'Enviando...' : 'Upload'}
               </UploadButton>
             </label>
             <input
@@ -129,15 +127,7 @@ const Dashboard: React.FC = () => {
               style={{ display: 'none' }}
               disabled={uploading}
             />
-          </SidebarMenu>
-          
-          <LogoutButton onClick={handleLogout}>
-            <i className="fas fa-sign-out-alt"></i> 
-            <span>Sair</span>
-          </LogoutButton>
-        </Sidebar>
-        
-        <MainContent>
+          </div>
           <h2>Meus Arquivos</h2>
           
           {loading ? (

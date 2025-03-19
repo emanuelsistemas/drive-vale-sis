@@ -57,6 +57,13 @@ export const LogoWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 0;
+  
+  /* Classe para layout horizontal (logo ao lado do texto) */
+  &.horizontal {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
 `;
 
 export const LogoImage = styled.img<SizeProps>`
@@ -69,9 +76,13 @@ export const LogoText = styled.h1<SizeProps>`
   font-family: 'MuseoModerno', cursive;
   font-size: ${props => getFontSize(props.size)};
   font-weight: 700;
-  color: var(--text-color); /* Verde terminal clássico #00ff41 */
+  color: var(--text-color);
   letter-spacing: 1px;
   text-transform: lowercase;
   text-shadow: 0 0 5px var(--text-color);
   margin-top: ${props => getTextMarginTop(props.size)};
+  
+  .horizontal & {
+    margin-top: 0;
+  }
 `;
