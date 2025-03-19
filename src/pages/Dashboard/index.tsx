@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Container, 
-  Header, 
   Content, 
-  Sidebar, 
   MainContent,
-  UserInfo,
+  Sidebar,
+  SidebarHeader,
+  SidebarMenu,
   LogoutButton,
   UploadButton,
   FileList,
   FileItem,
-  EmptyState,
-  TerminalLine
+  EmptyState
 } from './styles';
 
 // Importação centralizada dos componentes
@@ -104,34 +103,38 @@ const Dashboard: React.FC = () => {
   
   return (
     <Container>
-      <Header>
-        <Logo />
-        <UserInfo>
-          <span>{user?.email}</span>
-          <LogoutButton onClick={handleLogout}>
-            <i className="fas fa-sign-out-alt"></i> Sair
-          </LogoutButton>
-        </UserInfo>
-      </Header>
-      
       <Content>
         <Sidebar>
-          <TerminalLine>
-            <span className="prompt">root@valeterm:~$</span> ls -la
-          </TerminalLine>
+          <SidebarHeader>
+            <div className="logo-container">
+              <Logo />
+            </div>
+            <div className="user-info">
+              <div className="user-name">{user?.nome || 'Usuário'}</div>
+              <div className="user-email">{user?.email}</div>
+            </div>
+          </SidebarHeader>
           
-          <label htmlFor="file-upload">
-            <UploadButton as="span" disabled={uploading}>
-              <i className="fas fa-upload"></i> {uploading ? 'Enviando...' : 'Upload'}
-            </UploadButton>
-          </label>
-          <input
-            id="file-upload"
-            type="file"
-            onChange={handleFileUpload}
-            style={{ display: 'none' }}
-            disabled={uploading}
-          />
+          <SidebarMenu>
+            <label htmlFor="file-upload">
+              <UploadButton as="span" disabled={uploading}>
+                <i className="fas fa-upload"></i> 
+                <span className="sidebar-text">{uploading ? 'Enviando...' : 'Upload'}</span>
+              </UploadButton>
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              onChange={handleFileUpload}
+              style={{ display: 'none' }}
+              disabled={uploading}
+            />
+          </SidebarMenu>
+          
+          <LogoutButton onClick={handleLogout}>
+            <i className="fas fa-sign-out-alt"></i> 
+            <span>Sair</span>
+          </LogoutButton>
         </Sidebar>
         
         <MainContent>

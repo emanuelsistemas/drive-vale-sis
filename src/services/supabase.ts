@@ -1,34 +1,92 @@
-import { createClient } from '@supabase/supabase-js';
+// Stub simples do Supabase sem conexão real
 
-// Obter configuração do Supabase das variáveis de ambiente
-const useLocalSupabase = process.env.REACT_APP_USE_LOCAL_SUPABASE === 'true';
-
-// Determinar qual configuração usar com base na variável de ambiente
-const supabaseUrl = useLocalSupabase
-  ? process.env.REACT_APP_DRIVE_LOCAL_SUPABASE_URL || 'https://drive-vale-sis-supabase.h6gsxu.easypanel.host'
-  : process.env.REACT_APP_DRIVE_SUPABASE_URL || 'https://hbgmyrooyrisunhczfna.supabase.co';
-
-const supabaseAnonKey = useLocalSupabase
-  ? process.env.REACT_APP_DRIVE_LOCAL_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE'
-  : process.env.REACT_APP_DRIVE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhiZ215cm9veXJpc3VuaGN6Zm5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5NzYyOTIsImV4cCI6MjA1NzU1MjI5Mn0.Z5hg7lAbEyNYCd314kvknRj1QYd-nmZ3_jEkP_fDj9U';
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase URL ou chave anônima não definida');
-}
-
-// Log da configuração em ambiente de desenvolvimento
-if (process.env.NODE_ENV === 'development') {
-  console.log(`Usando Supabase ${useLocalSupabase ? 'Local (EasyPanel)' : 'Cloud (M-Software)'}`);
-  console.log(`URL: ${supabaseUrl}`);
-}
-
-// Criar e exportar cliente Supabase
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Criando a interface do cliente Supabase apenas com métodos mock
+export const supabase = {
   auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
+    getUser: async () => {
+      console.log('[MOCK] getUser called');
+      return { data: { user: { id: 'mock-user-id', email: 'user@example.com' } }, error: null };
+    },
+    getSession: async () => {
+      console.log('[MOCK] getSession called');
+      return { data: { session: { user: { id: 'mock-user-id', email: 'user@example.com' } } }, error: null };
+    },
+    signInWithPassword: async ({ email, password }: any) => {
+      console.log('[MOCK] signIn called with:', email);
+      return { data: { user: { id: 'mock-user-id', email: email }, session: { user: { id: 'mock-user-id' } } }, error: null };
+    },
+    signUp: async ({ email, password }: any) => {
+      console.log('[MOCK] signUp called with:', email);
+      return { data: { user: { id: 'mock-user-id', email: email }, session: { user: { id: 'mock-user-id' } } }, error: null };
+    },
+    signOut: async () => {
+      console.log('[MOCK] signOut called');
+      return { error: null };
+    },
+    onAuthStateChange: (callback: any) => {
+      console.log('[MOCK] onAuthStateChange called');
+      // Simular um evento de login após 1 segundo
+      setTimeout(() => {
+        callback('SIGNED_IN', { 
+          user: { id: 'mock-user-id', email: 'user@example.com' }
+        });
+      }, 1000);
+      return { data: { subscription: { unsubscribe: () => {} } } };
+    }
+  },
+  from: (table: string) => {
+    return {
+      select: () => ({
+        eq: () => ({
+          single: () => {
+            console.log(`[MOCK] select from ${table} called`);
+            if (table === 'cad_emp_user') {
+              return Promise.resolve({ 
+                data: { 
+                  id: 'mock-user-id', 
+                  nome: 'Usuário Teste', 
+                  email: 'user@example.com',
+                  perfil: { tipo: 'admin' } 
+                }, 
+                error: null 
+              });
+            }
+            return Promise.resolve({ data: null, error: null });
+          },
+          order: () => ({
+            limit: () => {
+              console.log(`[MOCK] select with order from ${table} called`);
+              return Promise.resolve({ data: [], error: null });
+            }
+          })
+        }),
+        execute: () => {
+          console.log(`[MOCK] select execute from ${table} called`);
+          return Promise.resolve({ data: [], error: null });
+        }
+      }),
+      insert: () => {
+        console.log(`[MOCK] insert into ${table} called`);
+        return Promise.resolve({ data: { id: 'new-mock-id' }, error: null });
+      },
+      update: () => ({
+        eq: () => {
+          console.log(`[MOCK] update ${table} called`);
+          return Promise.resolve({ data: { id: 'mock-id' }, error: null });
+        }
+      }),
+      delete: () => ({
+        eq: () => {
+          console.log(`[MOCK] delete from ${table} called`);
+          return Promise.resolve({ error: null });
+        }
+      })
+    };
+  },
+  rpc: (funcName: string, params?: any) => {
+    console.log(`[MOCK] rpc call to ${funcName} with params:`, params);
+    return Promise.resolve({ data: null, error: null });
   }
-});
+};
 
 export default supabase;

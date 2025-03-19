@@ -1,3 +1,6 @@
+// Tipos dedicados sem nenhuma referência ao Supabase
+// Estes tipos serão utilizados para simular objetos no frontend
+
 export interface UserProfile {
   id: string;
   username: string;
@@ -17,6 +20,8 @@ export interface FileObject {
   user_id: string;
   url: string;
   is_public: boolean;
+  description?: string;
+  tags?: string[];
 }
 
 export interface FileShare {

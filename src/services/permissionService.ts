@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 
 /**
- * Serviço para gerenciar permissões de acesso a arquivos
+ * Serviço para gerenciar permissões de acesso a arquivos (VERSÃO MOCK)
  */
 
 // Tipos para tabela de permissões
@@ -15,24 +15,54 @@ export interface FilePermission {
   created_by: number;
 }
 
-// CRUD para permissões de arquivo
+// Dados mock para permissões
+const mockPermissions: FilePermission[] = [
+  {
+    id: 1,
+    file_id: 1,
+    user_id: 1,
+    permission_type: 'admin',
+    created_at: new Date().toISOString(),
+    created_by: 1
+  },
+  {
+    id: 2,
+    file_id: 1,
+    user_id: 2,
+    permission_type: 'read',
+    created_at: new Date().toISOString(),
+    created_by: 1
+  },
+  {
+    id: 3,
+    file_id: 2,
+    empresa_id: 1,
+    permission_type: 'write',
+    created_at: new Date().toISOString(),
+    created_by: 1
+  }
+];
+
+// CRUD para permissões de arquivo (VERSÃO MOCK)
 export const filePermissionCrud = {
   // Criar uma nova permissão
   async create(data: FilePermission) {
     try {
-      const { data: result, error } = await supabase
-        .from('file_permissions')
-        .insert([data])
-        .select();
+      console.log('Mock: Criando permissão de arquivo', data);
       
-      if (error) {
-        console.error('Erro ao criar permissão:', error);
-        throw error;
-      }
+      // Simular criação de permissão
+      const newPermission: FilePermission = {
+        ...data,
+        id: mockPermissions.length + 1,
+        created_at: new Date().toISOString()
+      };
       
-      return result?.[0];
+      // Adicionar à lista de permissões mock
+      mockPermissions.push(newPermission);
+      
+      return newPermission;
     } catch (error) {
-      console.error('Erro ao criar permissão:', error);
+      console.error('Erro ao criar permissão (mock):', error);
       throw error;
     }
   },
@@ -40,23 +70,19 @@ export const filePermissionCrud = {
   // Obter todas as permissões de um arquivo
   async getByFileId(fileId: number) {
     try {
-      const { data, error } = await supabase
-        .from('file_permissions')
-        .select(`
-          *,
-          user:user_id(id, dv_nome, dv_email),
-          empresa:empresa_id(id, dv_nome)
-        `)
-        .eq('file_id', fileId);
+      console.log(`Mock: Buscando permissões do arquivo ${fileId}`);
       
-      if (error) {
-        console.error(`Erro ao buscar permissões do arquivo ${fileId}:`, error);
-        throw error;
-      }
+      // Filtrar permissões pelo ID do arquivo
+      const permissions = mockPermissions.filter(p => p.file_id === fileId);
       
-      return data;
+      // Simular dados relacionados para cada permissão
+      return permissions.map(p => ({
+        ...p,
+        user: p.user_id ? { id: p.user_id, dv_nome: `User ${p.user_id}`, dv_email: `user${p.user_id}@example.com` } : null,
+        empresa: p.empresa_id ? { id: p.empresa_id, dv_nome: `Empresa ${p.empresa_id}` } : null
+      }));
     } catch (error) {
-      console.error(`Erro ao buscar permissões do arquivo ${fileId}:`, error);
+      console.error(`Erro ao buscar permissões do arquivo ${fileId} (mock):`, error);
       throw error;
     }
   },
@@ -64,22 +90,25 @@ export const filePermissionCrud = {
   // Obter permissões de um usuário
   async getByUserId(userId: number) {
     try {
-      const { data, error } = await supabase
-        .from('file_permissions')
-        .select(`
-          *,
-          file:file_id(*)
-        `)
-        .eq('user_id', userId);
+      console.log(`Mock: Buscando permissões do usuário ${userId}`);
       
-      if (error) {
-        console.error(`Erro ao buscar permissões do usuário ${userId}:`, error);
-        throw error;
-      }
+      // Filtrar permissões pelo ID do usuário
+      const permissions = mockPermissions.filter(p => p.user_id === userId);
       
-      return data;
+      // Simular dados de arquivo para cada permissão
+      return permissions.map(p => ({
+        ...p,
+        file: {
+          id: p.file_id,
+          name: `File ${p.file_id}`,
+          type: 'document',
+          size: 1024 * (p.file_id + 1),
+          is_public: false,
+          created_at: new Date().toISOString()
+        }
+      }));
     } catch (error) {
-      console.error(`Erro ao buscar permissões do usuário ${userId}:`, error);
+      console.error(`Erro ao buscar permissões do usuário ${userId} (mock):`, error);
       throw error;
     }
   },
@@ -87,138 +116,116 @@ export const filePermissionCrud = {
   // Obter permissões de uma empresa
   async getByEmpresaId(empresaId: number) {
     try {
-      const { data, error } = await supabase
-        .from('file_permissions')
-        .select(`
-          *,
-          file:file_id(*)
-        `)
-        .eq('empresa_id', empresaId);
+      console.log(`Mock: Buscando permissões da empresa ${empresaId}`);
       
-      if (error) {
-        console.error(`Erro ao buscar permissões da empresa ${empresaId}:`, error);
-        throw error;
-      }
+      // Filtrar permissões pelo ID da empresa
+      const permissions = mockPermissions.filter(p => p.empresa_id === empresaId);
       
-      return data;
+      // Simular dados de arquivo para cada permissão
+      return permissions.map(p => ({
+        ...p,
+        file: {
+          id: p.file_id,
+          name: `File ${p.file_id}`,
+          type: 'document',
+          size: 1024 * (p.file_id + 1),
+          is_public: false,
+          created_at: new Date().toISOString()
+        }
+      }));
     } catch (error) {
-      console.error(`Erro ao buscar permissões da empresa ${empresaId}:`, error);
+      console.error(`Erro ao buscar permissões da empresa ${empresaId} (mock):`, error);
       throw error;
     }
   },
   
-  // Atualizar uma permissão
+  // Atualizar uma permissão (MOCK)
   async update(id: number, data: Partial<FilePermission>) {
     try {
-      const { data: result, error } = await supabase
-        .from('file_permissions')
-        .update(data)
-        .eq('id', id)
-        .select();
+      console.log(`Mock: Atualizando permissão ${id}`, data);
       
-      if (error) {
-        console.error(`Erro ao atualizar permissão ${id}:`, error);
-        throw error;
+      // Encontrar a permissão no mock
+      const permissionIndex = mockPermissions.findIndex(p => p.id === id);
+      
+      if (permissionIndex === -1) {
+        throw new Error(`Permissão com ID ${id} não encontrada`);
       }
       
-      return result?.[0];
+      // Atualizar a permissão
+      mockPermissions[permissionIndex] = {
+        ...mockPermissions[permissionIndex],
+        ...data
+      };
+      
+      return mockPermissions[permissionIndex];
     } catch (error) {
-      console.error(`Erro ao atualizar permissão ${id}:`, error);
+      console.error(`Erro ao atualizar permissão ${id} (mock):`, error);
       throw error;
     }
   },
   
-  // Excluir uma permissão
+  // Excluir uma permissão (MOCK)
   async delete(id: number) {
     try {
-      const { error } = await supabase
-        .from('file_permissions')
-        .delete()
-        .eq('id', id);
+      console.log(`Mock: Excluindo permissão ${id}`);
       
-      if (error) {
-        console.error(`Erro ao excluir permissão ${id}:`, error);
-        throw error;
+      // Encontrar o índice da permissão
+      const permissionIndex = mockPermissions.findIndex(p => p.id === id);
+      
+      if (permissionIndex === -1) {
+        throw new Error(`Permissão com ID ${id} não encontrada`);
       }
+      
+      // Remover a permissão
+      mockPermissions.splice(permissionIndex, 1);
       
       return true;
     } catch (error) {
-      console.error(`Erro ao excluir permissão ${id}:`, error);
+      console.error(`Erro ao excluir permissão ${id} (mock):`, error);
       throw error;
     }
   },
   
-  // Verificar se um usuário tem permissão para um arquivo
+  // Verificar se um usuário tem permissão para um arquivo (MOCK)
   async checkUserPermission(fileId: number, userId: number, requiredPermission: 'read' | 'write' | 'admin') {
     try {
-      // Verificar se o arquivo é público
-      const { data: fileData, error: fileError } = await supabase
-        .from('files')
-        .select('is_public, user_id')
-        .eq('id', fileId)
-        .single();
+      console.log(`Mock: Verificando permissão do usuário ${userId} para o arquivo ${fileId}`);
       
-      if (fileError) {
-        throw fileError;
-      }
+      // Simular que o arquivo é público se o ID for par
+      const isPublic = fileId % 2 === 0;
       
-      // Se o arquivo é público ou o usuário é o proprietário, permitir acesso
-      if (fileData.is_public && requiredPermission === 'read') {
+      // Se o arquivo é público e a permissão é de leitura, permitir acesso
+      if (isPublic && requiredPermission === 'read') {
         return true;
       }
       
-      // Se o usuário é o proprietário, permitir acesso total
-      if (fileData.user_id === userId) {
+      // Simular que o usuário 1 é dono de todos os arquivos
+      if (userId === 1) {
         return true;
       }
       
-      // Verificar permissões específicas
-      const { data, error } = await supabase
-        .from('file_permissions')
-        .select('permission_type')
-        .eq('file_id', fileId)
-        .eq('user_id', userId);
+      // Procurar permissões específicas do usuário
+      const userPermission = mockPermissions.find(p => p.file_id === fileId && p.user_id === userId);
       
-      if (error) {
-        throw error;
+      if (userPermission) {
+        return checkPermissionLevel(userPermission.permission_type, requiredPermission);
       }
       
-      // Se não há permissões, verificar permissões da empresa
-      if (!data || data.length === 0) {
-        // Obter a empresa do usuário
-        const { data: userData, error: userError } = await supabase
-          .from('dv_cad_empresas_drive')
-          .select('id')
-          .eq('id', userId)
-          .single();
+      // Simular empresa do usuário (todos os usuários pertencem à empresa 1 exceto o usuário 1)
+      const empresaId = userId === 1 ? null : 1;
+      
+      if (empresaId) {
+        // Procurar permissões da empresa
+        const empresaPermission = mockPermissions.find(p => p.file_id === fileId && p.empresa_id === empresaId);
         
-        if (userError) {
-          throw userError;
+        if (empresaPermission) {
+          return checkPermissionLevel(empresaPermission.permission_type, requiredPermission);
         }
-        
-        // Verificar permissões da empresa
-        const { data: empresaPermissions, error: empresaError } = await supabase
-          .from('file_permissions')
-          .select('permission_type')
-          .eq('file_id', fileId)
-          .eq('empresa_id', userData.id);
-        
-        if (empresaError) {
-          throw empresaError;
-        }
-        
-        if (!empresaPermissions || empresaPermissions.length === 0) {
-          return false;
-        }
-        
-        // Verificar se a permissão da empresa é suficiente
-        return checkPermissionLevel(empresaPermissions[0].permission_type, requiredPermission);
       }
       
-      // Verificar se a permissão do usuário é suficiente
-      return checkPermissionLevel(data[0].permission_type, requiredPermission);
+      return false;
     } catch (error) {
-      console.error(`Erro ao verificar permissão do usuário ${userId} para o arquivo ${fileId}:`, error);
+      console.error(`Erro ao verificar permissão do usuário ${userId} para o arquivo ${fileId} (mock):`, error);
       return false;
     }
   }
@@ -259,62 +266,19 @@ export const removeFileAccess = async (permissionId: number) => {
   return filePermissionCrud.delete(permissionId);
 };
 
-// Função para criar tabela de permissões no Supabase
+// Função mock para criar tabela de permissões
 export const createPermissionsTable = async () => {
   try {
-    // Verificar se a tabela já existe
-    const { error: checkError } = await supabase.rpc('exec', { 
-      query: `SELECT to_regclass('public.file_permissions');` 
-    });
+    console.log('[MOCK] Criando tabela de permissões (simulação)');
     
-    if (checkError) {
-      console.error('Erro ao verificar tabela de permissões:', checkError);
-    }
+    // Simulando uma operação bem-sucedida
+    // Em um ambiente real, isso criaria a tabela no banco de dados
     
-    // Criar a tabela file_permissions
-    const createTableQuery = `
-      CREATE TABLE IF NOT EXISTS file_permissions (
-        id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-        file_id BIGINT REFERENCES files(id) ON DELETE CASCADE,
-        user_id BIGINT REFERENCES dv_cad_empresas_drive(id),
-        empresa_id BIGINT REFERENCES dv_cad_empresas_drive(id),
-        permission_type TEXT CHECK (permission_type IN ('read', 'write', 'admin')) NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        created_by BIGINT REFERENCES dv_cad_empresas_drive(id) NOT NULL,
-        CONSTRAINT check_target CHECK (
-          (user_id IS NULL AND empresa_id IS NOT NULL) OR
-          (user_id IS NOT NULL AND empresa_id IS NULL)
-        )
-      );
-    `;
-    
-    const { error: createError } = await supabase.rpc('exec', { 
-      query: createTableQuery 
-    });
-    
-    if (createError) {
-      console.error('Erro ao criar tabela de permissões:', createError);
-      throw createError;
-    }
-    
-    // Criar índices para melhorar performance
-    const createIndexesQuery = `
-      CREATE INDEX IF NOT EXISTS idx_file_permissions_file_id ON file_permissions(file_id);
-      CREATE INDEX IF NOT EXISTS idx_file_permissions_user_id ON file_permissions(user_id);
-      CREATE INDEX IF NOT EXISTS idx_file_permissions_empresa_id ON file_permissions(empresa_id);
-    `;
-    
-    const { error: indexError } = await supabase.rpc('exec', { 
-      query: createIndexesQuery 
-    });
-    
-    if (indexError) {
-      console.error('Erro ao criar índices para tabela de permissões:', indexError);
-    }
+    console.log('[MOCK] Tabela de permissões criada com sucesso (simulação)');
     
     return { success: true };
   } catch (error) {
-    console.error('Erro ao criar tabela de permissões:', error);
+    console.error('[MOCK] Erro ao simular criação de tabela de permissões:', error);
     return { success: false, error };
   }
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { uploadFile, listFiles, deleteFile, getFileUrl } from '../services/fileService';
+import { uploadFile, listFiles, deleteFile, getFileUrl, FileRecord } from '../services/fileService';
 import { FileObject } from '../types/supabase';
 
 export const useFiles = () => {
@@ -23,7 +23,7 @@ export const useFiles = () => {
     
     try {
       setLoading(true);
-      const fileList = await listFiles(user.id);
+      const fileList = await listFiles(String(user.id));
       // Converter FileRecord[] para FileObject[] garantindo que todos os campos obrigatórios estejam presentes
       const fileObjects: FileObject[] = fileList.map(file => ({
         id: String(file.id || ''),  // Converter para string conforme exigido pelo tipo FileObject
@@ -51,10 +51,25 @@ export const useFiles = () => {
     
     try {
       setUploading(true);
-      const newFile = await uploadFile(file, user.id);
-      setFiles(prev => [newFile, ...prev]);
+      const newFileRecord = await uploadFile(file, String(user.id));
+      
+      // Converter o FileRecord para FileObject antes de adicionar ao state
+      const newFileObject: FileObject = {
+        id: String(newFileRecord.id || ''),
+        name: newFileRecord.name,
+        size: newFileRecord.size,
+        type: newFileRecord.type,
+        path: newFileRecord.path,
+        created_at: newFileRecord.created_at || new Date().toISOString(),
+        updated_at: newFileRecord.updated_at || new Date().toISOString(),
+        user_id: String(newFileRecord.user_id),
+        url: '', // Inicializa com string vazia
+        is_public: newFileRecord.is_public
+      };
+      
+      setFiles(prev => [newFileObject, ...prev]);
       showToast('Arquivo enviado com sucesso!');
-      return newFile;
+      return newFileObject;
     } catch (error) {
       console.error('Erro ao fazer upload:', error);
       showToast('Erro ao enviar arquivo', 'error');

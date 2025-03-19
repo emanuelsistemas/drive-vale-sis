@@ -1,0 +1,24 @@
+/* Alternativa para fontes MuseoModerno */
+@font-face {
+  font-family: 'MuseoModerno';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Arial'), local('Helvetica');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MuseoModerno';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Arial'), local('Helvetica');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MuseoModerno';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Arial Bold'), local('Helvetica Bold');
+  font-display: swap;
+}

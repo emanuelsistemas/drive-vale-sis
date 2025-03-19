@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 // Páginas
 import Auth from '../pages/Auth';
 import Dashboard from '../pages/Dashboard';
-import UserManagement from '../pages/UserManagement';
+// import UserManagement from '../pages/UserManagement';
 
 // Componente para rotas protegidas
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -46,6 +46,7 @@ const AppRoutes: React.FC = () => {
             </PrivateRoute>
           } 
         />
+        {/* Rota de gerenciamento de usuários desativada
         <Route 
           path="/users" 
           element={
@@ -54,6 +55,7 @@ const AppRoutes: React.FC = () => {
             </AdminRoute>
           } 
         />
+        */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

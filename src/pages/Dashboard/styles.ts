@@ -71,27 +71,22 @@ export const Content = styled.div`
   }
 `;
 
-export const Sidebar = styled.aside`
-  width: 250px;
-  background-color: var(--card-bg);
+export const MainContent = styled.main`
+  flex: 1;
   padding: 20px;
-  border-right: 1px solid var(--input-border);
+  background-color: var(--bg-color);
 
-  @media (max-width: 768px) {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--input-border);
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
   }
-`;
 
-export const TerminalLine = styled.div`
-  margin-bottom: 20px;
-  font-size: 14px;
-  color: var(--text-color);
-
-  .prompt {
-    color: var(--primary-color);
-    margin-right: 8px;
+  h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: var(--text-color);
+    text-shadow: 0 0 5px var(--text-color);
   }
 `;
 
@@ -102,19 +97,6 @@ export const UploadButton = styled(Button)`
   gap: 8px;
   margin-bottom: 15px;
   cursor: pointer;
-`;
-
-export const MainContent = styled.main`
-  flex: 1;
-  padding: 20px;
-  background-color: var(--bg-color);
-
-  h2 {
-    font-size: 22px;
-    margin-bottom: 20px;
-    color: var(--text-color);
-    text-shadow: 0 0 5px var(--text-color);
-  }
 `;
 
 export const FileList = styled.div`

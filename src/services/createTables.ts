@@ -1,186 +1,68 @@
-import { supabase } from './supabase';
 import { createPermissionsTable } from './permissionService';
 import { createCategoryTables } from './categoryService';
 import { createStatsTables } from './statsService';
 import { fixRlsPolicies } from './fixRlsPolicies';
 
 /**
- * Função para criar as tabelas necessárias no Supabase caso não existam
+ * Versão mock da função para criar as tabelas necessárias
+ * sem dependência direta do Supabase
  */
 export const createRequiredTables = async () => {
   try {
-    // Verificar se a tabela dv_restricao_user existe
-    const { data: restricaoExists, error: restricaoCheckError } = await supabase
-      .from('dv_restricao_user')
-      .select('id')
-      .limit(1);
+    console.log('[MOCK] Iniciando simulação de criação de tabelas...');
     
-    // Se ocorrer um erro, provavelmente a tabela não existe
-    if (restricaoCheckError) {
-      console.log('Criando tabela dv_restricao_user...');
-      
-      // Criar a tabela dv_restricao_user
-      const createRestricaoTableQuery = `
-        CREATE TABLE IF NOT EXISTS dv_restricao_user (
-          id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-          dv_tipo_restricao TEXT CHECK (dv_tipo_restricao IN ('admin', 'user')) DEFAULT 'admin',
-          usuario_id BIGINT
-        );
-      `;
-      
-      const { error: createRestricaoError } = await supabase.rpc('exec', { 
-        query: createRestricaoTableQuery 
-      });
-      
-      if (createRestricaoError) {
-        console.error('Erro ao criar tabela dv_restricao_user:', createRestricaoError);
-      } else {
-        console.log('Tabela dv_restricao_user criada com sucesso!');
-      }
-    }
+    // Simular criação da tabela dv_restricao_user
+    console.log('[MOCK] Simulando criação da tabela dv_restricao_user...');
+    console.log('[MOCK] Tabela dv_restricao_user simulada com sucesso!');
     
-    // Verificar se a tabela dv_cad_empresas_drive existe
-    const { data: empresasExists, error: empresasCheckError } = await supabase
-      .from('dv_cad_empresas_drive')
-      .select('id')
-      .limit(1);
+    // Simular criação da tabela dv_cad_empresas_drive
+    console.log('[MOCK] Simulando criação da tabela dv_cad_empresas_drive...');
+    console.log('[MOCK] Tabela dv_cad_empresas_drive simulada com sucesso!');
     
-    // Se ocorrer um erro, provavelmente a tabela não existe
-    if (empresasCheckError) {
-      console.log('Criando tabela dv_cad_empresas_drive...');
-      
-      // Criar a tabela dv_cad_empresas_drive
-      const createEmpresasTableQuery = `
-        CREATE TABLE IF NOT EXISTS dv_cad_empresas_drive (
-          id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-          dv_nome TEXT,
-          dv_email TEXT,
-          dv_senha TEXT,
-          dv_tipo_restricao BIGINT REFERENCES dv_restricao_user(id)
-        );
-      `;
-      
-      const { error: createEmpresasError } = await supabase.rpc('exec', { 
-        query: createEmpresasTableQuery 
-      });
-      
-      if (createEmpresasError) {
-        console.error('Erro ao criar tabela dv_cad_empresas_drive:', createEmpresasError);
-      } else {
-        console.log('Tabela dv_cad_empresas_drive criada com sucesso!');
-      }
-    }
+    // Simular verificação de coluna usuario_id
+    console.log('[MOCK] Simulando verificação da coluna usuario_id...');
+    console.log('[MOCK] Coluna usuario_id verificada com sucesso!');
     
-    // Verificar se a coluna usuario_id existe na tabela dv_restricao_user
-    try {
-      const { error: columnCheckError } = await supabase.rpc('exec', { 
-        query: `SELECT usuario_id FROM dv_restricao_user LIMIT 1;` 
-      });
-      
-      // Se ocorrer um erro, provavelmente a coluna não existe
-      if (columnCheckError) {
-        console.log('Adicionando coluna usuario_id à tabela dv_restricao_user...');
-        
-        // Adicionar a coluna usuario_id à tabela dv_restricao_user
-        const addColumnQuery = `
-          ALTER TABLE dv_restricao_user
-          ADD COLUMN IF NOT EXISTS usuario_id BIGINT REFERENCES dv_cad_empresas_drive(id);
-        `;
-        
-        const { error: addColumnError } = await supabase.rpc('exec', { 
-          query: addColumnQuery 
-        });
-        
-        if (addColumnError) {
-          console.error('Erro ao adicionar coluna usuario_id:', addColumnError);
-        } else {
-          console.log('Coluna usuario_id adicionada com sucesso!');
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao verificar coluna usuario_id:', error);
-    }
+    // Simular criação da tabela de arquivos
+    console.log('[MOCK] Simulando criação da tabela de arquivos...');
+    console.log('[MOCK] Tabela de arquivos simulada com sucesso!');
     
-    // Criar tabela de arquivos
-    try {
-      // Verificar se a tabela files existe
-      const { error: filesCheckError } = await supabase.rpc('exec', { 
-        query: `SELECT to_regclass('public.files');` 
-      });
-      
-      if (filesCheckError) {
-        console.log('Criando tabela de arquivos...');
-        
-        const createFilesTableQuery = `
-          CREATE TABLE IF NOT EXISTS files (
-            id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            name TEXT NOT NULL,
-            size BIGINT NOT NULL,
-            type TEXT,
-            path TEXT NOT NULL,
-            user_id TEXT NOT NULL,
-            empresa_id BIGINT REFERENCES dv_cad_empresas_drive(id),
-            is_public BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            description TEXT,
-            tags TEXT[]
-          );
-          
-          CREATE INDEX IF NOT EXISTS idx_files_user_id ON files(user_id);
-          CREATE INDEX IF NOT EXISTS idx_files_empresa_id ON files(empresa_id);
-          CREATE INDEX IF NOT EXISTS idx_files_is_public ON files(is_public);
-        `;
-        
-        const { error: createFilesError } = await supabase.rpc('exec', { 
-          query: createFilesTableQuery 
-        });
-        
-        if (createFilesError) {
-          console.error('Erro ao criar tabela de arquivos:', createFilesError);
-        } else {
-          console.log('Tabela de arquivos criada com sucesso!');
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao verificar/criar tabela de arquivos:', error);
-    }
-    
-    // Criar tabela de permissões
+    // Criar tabela de permissões (usando as versões mock)
     try {
       await createPermissionsTable();
-      console.log('Tabela de permissões verificada/criada com sucesso!');
+      console.log('[MOCK] Tabela de permissões simulada com sucesso!');
     } catch (error) {
-      console.error('Erro ao criar tabela de permissões:', error);
+      console.error('[MOCK] Erro ao simular tabela de permissões:', error);
     }
     
-    // Criar tabelas de categorias
+    // Criar tabelas de categorias (usando as versões mock)
     try {
       await createCategoryTables();
-      console.log('Tabelas de categorias verificadas/criadas com sucesso!');
+      console.log('[MOCK] Tabelas de categorias simuladas com sucesso!');
     } catch (error) {
-      console.error('Erro ao criar tabelas de categorias:', error);
+      console.error('[MOCK] Erro ao simular tabelas de categorias:', error);
     }
     
-    // Criar tabelas de estatísticas
+    // Criar tabelas de estatísticas (usando as versões mock)
     try {
       await createStatsTables();
-      console.log('Tabelas de estatísticas verificadas/criadas com sucesso!');
+      console.log('[MOCK] Tabelas de estatísticas simuladas com sucesso!');
     } catch (error) {
-      console.error('Erro ao criar tabelas de estatísticas:', error);
+      console.error('[MOCK] Erro ao simular tabelas de estatísticas:', error);
     }
     
-    // Corrigir políticas RLS
+    // Corrigir políticas RLS (usando as versões mock)
     try {
       await fixRlsPolicies();
-      console.log('Políticas RLS corrigidas com sucesso!');
+      console.log('[MOCK] Políticas RLS simuladas com sucesso!');
     } catch (error) {
-      console.error('Erro ao corrigir políticas RLS:', error);
+      console.error('[MOCK] Erro ao simular políticas RLS:', error);
     }
     
+    console.log('[MOCK] Simulação de criação de tabelas concluída com sucesso!');
     return { success: true };
   } catch (error) {
-    console.error('Erro ao criar tabelas:', error);
+    console.error('[MOCK] Erro ao simular criação de tabelas:', error);
     return { success: false, error };
   }
 };

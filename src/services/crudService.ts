@@ -1,7 +1,5 @@
-import { supabase } from './supabase';
-
 /**
- * Serviço para operações CRUD nas tabelas do Supabase
+ * Serviço MOCK para operações CRUD nas tabelas
  */
 
 // Tipos para as tabelas
@@ -19,209 +17,192 @@ export interface EmpresaDrive {
   dv_tipo_restricao: number;
 }
 
-// CRUD para dv_restricao_user
+// Dados mock para restrições de usuários
+const mockRestricoes: RestricaoUser[] = [
+  { id: 1, dv_tipo_restricao: 'admin', usuario_id: 1 },
+  { id: 2, dv_tipo_restricao: 'user', usuario_id: 2 },
+  { id: 3, dv_tipo_restricao: 'user', usuario_id: 3 }
+];
+
+// Dados mock para empresas
+const mockEmpresas: EmpresaDrive[] = [
+  { id: 1, dv_nome: 'Admin', dv_email: 'admin@example.com', dv_senha: 'senha123', dv_tipo_restricao: 1 },
+  { id: 2, dv_nome: 'Empresa A', dv_email: 'empresa.a@example.com', dv_senha: 'senha123', dv_tipo_restricao: 2 },
+  { id: 3, dv_nome: 'Empresa B', dv_email: 'empresa.b@example.com', dv_senha: 'senha123', dv_tipo_restricao: 2 }
+];
+
+// CRUD para dv_restricao_user (MOCK)
 export const restricaoUserCrud = {
   // Create
   async create(data: RestricaoUser) {
-    const { data: result, error } = await supabase
-      .from('dv_restricao_user')
-      .insert([data])
-      .select();
+    console.log('Mock: Criando restrição de usuário', data);
     
-    if (error) {
-      console.error('Erro ao criar restrição de usuário:', error);
-      throw error;
-    }
+    // Gerar ID único
+    const newId = mockRestricoes.length > 0 ? Math.max(...mockRestricoes.map(r => r.id || 0)) + 1 : 1;
     
-    return result?.[0];
+    // Criar nova restrição com ID
+    const newRestricao = { ...data, id: newId };
+    
+    // Adicionar ao mock
+    mockRestricoes.push(newRestricao);
+    
+    return newRestricao;
   },
   
   // Read
   async getAll() {
-    const { data, error } = await supabase
-      .from('dv_restricao_user')
-      .select('*');
-    
-    if (error) {
-      console.error('Erro ao buscar restrições de usuário:', error);
-      throw error;
-    }
-    
-    return data;
+    console.log('Mock: Obtendo todas as restrições de usuários');
+    return [...mockRestricoes];
   },
   
   async getById(id: number) {
-    const { data, error } = await supabase
-      .from('dv_restricao_user')
-      .select('*')
-      .eq('id', id)
-      .single();
+    console.log(`Mock: Obtendo restrição de usuário com ID ${id}`);
     
-    if (error) {
-      console.error(`Erro ao buscar restrição de usuário com ID ${id}:`, error);
-      throw error;
+    const restricao = mockRestricoes.find(r => r.id === id);
+    
+    if (!restricao) {
+      throw new Error(`Restrição com ID ${id} não encontrada`);
     }
     
-    return data;
+    return restricao;
   },
   
   async getByUsuarioId(usuarioId: number) {
-    const { data, error } = await supabase
-      .from('dv_restricao_user')
-      .select('*')
-      .eq('usuario_id', usuarioId);
+    console.log(`Mock: Obtendo restrições de usuário com usuario_id ${usuarioId}`);
     
-    if (error) {
-      console.error(`Erro ao buscar restrição de usuário com usuario_id ${usuarioId}:`, error);
-      throw error;
-    }
+    const restricoes = mockRestricoes.filter(r => r.usuario_id === usuarioId);
     
-    return data;
+    return restricoes;
   },
   
   // Update
   async update(id: number, data: Partial<RestricaoUser>) {
-    const { data: result, error } = await supabase
-      .from('dv_restricao_user')
-      .update(data)
-      .eq('id', id)
-      .select();
+    console.log(`Mock: Atualizando restrição de usuário com ID ${id}`, data);
     
-    if (error) {
-      console.error(`Erro ao atualizar restrição de usuário com ID ${id}:`, error);
-      throw error;
+    const index = mockRestricoes.findIndex(r => r.id === id);
+    
+    if (index === -1) {
+      throw new Error(`Restrição com ID ${id} não encontrada`);
     }
     
-    return result?.[0];
+    // Atualizar restrição
+    mockRestricoes[index] = { ...mockRestricoes[index], ...data };
+    
+    return mockRestricoes[index];
   },
   
   // Delete
   async delete(id: number) {
-    const { error } = await supabase
-      .from('dv_restricao_user')
-      .delete()
-      .eq('id', id);
+    console.log(`Mock: Excluindo restrição de usuário com ID ${id}`);
     
-    if (error) {
-      console.error(`Erro ao excluir restrição de usuário com ID ${id}:`, error);
-      throw error;
+    const index = mockRestricoes.findIndex(r => r.id === id);
+    
+    if (index === -1) {
+      throw new Error(`Restrição com ID ${id} não encontrada`);
     }
+    
+    // Remover restrição
+    mockRestricoes.splice(index, 1);
     
     return true;
   }
 };
 
-// CRUD para dv_cad_empresas_drive
+// CRUD para dv_cad_empresas_drive (MOCK)
 export const empresaDriveCrud = {
   // Create
   async create(data: EmpresaDrive) {
-    const { data: result, error } = await supabase
-      .from('dv_cad_empresas_drive')
-      .insert([data])
-      .select();
+    console.log('Mock: Criando empresa', data);
     
-    if (error) {
-      console.error('Erro ao criar empresa:', error);
-      throw error;
-    }
+    // Gerar ID único
+    const newId = mockEmpresas.length > 0 ? Math.max(...mockEmpresas.map(r => r.id || 0)) + 1 : 1;
     
-    return result?.[0];
+    // Criar nova empresa com ID
+    const newEmpresa = { ...data, id: newId };
+    
+    // Adicionar ao mock
+    mockEmpresas.push(newEmpresa);
+    
+    return newEmpresa;
   },
   
   // Read
   async getAll() {
-    const { data, error } = await supabase
-      .from('dv_cad_empresas_drive')
-      .select('*');
-    
-    if (error) {
-      console.error('Erro ao buscar empresas:', error);
-      throw error;
-    }
-    
-    return data;
+    console.log('Mock: Obtendo todas as empresas');
+    return [...mockEmpresas];
   },
   
   async getById(id: number) {
-    const { data, error } = await supabase
-      .from('dv_cad_empresas_drive')
-      .select('*')
-      .eq('id', id)
-      .single();
+    console.log(`Mock: Obtendo empresa com ID ${id}`);
     
-    if (error) {
-      console.error(`Erro ao buscar empresa com ID ${id}:`, error);
-      throw error;
+    const empresa = mockEmpresas.find(e => e.id === id);
+    
+    if (!empresa) {
+      throw new Error(`Empresa com ID ${id} não encontrada`);
     }
     
-    return data;
+    return empresa;
   },
   
   async getByEmail(email: string) {
-    const { data, error } = await supabase
-      .from('dv_cad_empresas_drive')
-      .select('*')
-      .eq('dv_email', email)
-      .single();
+    console.log(`Mock: Obtendo empresa com email ${email}`);
     
-    if (error && error.code !== 'PGRST116') { // PGRST116 é o código para "nenhum resultado encontrado"
-      console.error(`Erro ao buscar empresa com email ${email}:`, error);
-      throw error;
-    }
+    const empresa = mockEmpresas.find(e => e.dv_email === email);
     
-    return data;
+    return empresa || null;
   },
   
   // Update
   async update(id: number, data: Partial<EmpresaDrive>) {
-    const { data: result, error } = await supabase
-      .from('dv_cad_empresas_drive')
-      .update(data)
-      .eq('id', id)
-      .select();
+    console.log(`Mock: Atualizando empresa com ID ${id}`, data);
     
-    if (error) {
-      console.error(`Erro ao atualizar empresa com ID ${id}:`, error);
-      throw error;
+    const index = mockEmpresas.findIndex(e => e.id === id);
+    
+    if (index === -1) {
+      throw new Error(`Empresa com ID ${id} não encontrada`);
     }
     
-    return result?.[0];
+    // Atualizar empresa
+    mockEmpresas[index] = { ...mockEmpresas[index], ...data };
+    
+    return mockEmpresas[index];
   },
   
   // Delete
   async delete(id: number) {
-    const { error } = await supabase
-      .from('dv_cad_empresas_drive')
-      .delete()
-      .eq('id', id);
+    console.log(`Mock: Excluindo empresa com ID ${id}`);
     
-    if (error) {
-      console.error(`Erro ao excluir empresa com ID ${id}:`, error);
-      throw error;
+    const index = mockEmpresas.findIndex(e => e.id === id);
+    
+    if (index === -1) {
+      throw new Error(`Empresa com ID ${id} não encontrada`);
     }
+    
+    // Remover empresa
+    mockEmpresas.splice(index, 1);
     
     return true;
   },
   
-  // Consultas avançadas
+  // Consultas avançadas (MOCK)
   async getWithRestrictions() {
-    const { data, error } = await supabase
-      .from('dv_cad_empresas_drive')
-      .select(`
-        *,
-        restricao:dv_tipo_restricao(*)
-      `);
+    console.log('Mock: Obtendo empresas com restrições');
     
-    if (error) {
-      console.error('Erro ao buscar empresas com restrições:', error);
-      throw error;
-    }
+    // Mapear empresas com suas restrições
+    const empresasComRestricoes = mockEmpresas.map(empresa => {
+      const restricao = mockRestricoes.find(r => r.id === empresa.dv_tipo_restricao);
+      
+      return {
+        ...empresa,
+        restricao: restricao || null
+      };
+    });
     
-    return data;
+    return empresasComRestricoes;
   }
 };
 
-// Função para criar um usuário completo (empresa + restrição)
+// Função para criar um usuário completo (empresa + restrição) (MOCK)
 export const createCompleteUser = async (
   nome: string,
   email: string,
@@ -229,6 +210,8 @@ export const createCompleteUser = async (
   tipoRestricao: 'admin' | 'user' = 'admin'
 ) => {
   try {
+    console.log(`Mock: Criando usuário completo - ${nome}, ${email}, ${tipoRestricao}`);
+    
     // 1. Criar restrição
     const restricao = await restricaoUserCrud.create({
       dv_tipo_restricao: tipoRestricao
@@ -247,7 +230,7 @@ export const createCompleteUser = async (
     });
     
     if (!empresa || !empresa.id) {
-      // Remover a restrição criada para não deixar lixo no banco
+      // Remover a restrição criada para não deixar lixo no mock
       await restricaoUserCrud.delete(restricao.id);
       throw new Error('Falha ao criar empresa');
     }
@@ -265,14 +248,16 @@ export const createCompleteUser = async (
       }
     };
   } catch (error) {
-    console.error('Erro ao criar usuário completo:', error);
+    console.error('Erro ao criar usuário completo (mock):', error);
     throw error;
   }
 };
 
-// Função para buscar um usuário completo por email
+// Função para buscar um usuário completo por email (MOCK)
 export const getCompleteUserByEmail = async (email: string) => {
   try {
+    console.log(`Mock: Buscando usuário completo por email ${email}`);
+    
     // 1. Buscar empresa pelo email
     const empresa = await empresaDriveCrud.getByEmail(email);
     
@@ -288,7 +273,7 @@ export const getCompleteUserByEmail = async (email: string) => {
       restricao: restricoes?.[0] || null
     };
   } catch (error) {
-    console.error('Erro ao buscar usuário completo:', error);
+    console.error('Erro ao buscar usuário completo (mock):', error);
     throw error;
   }
 };

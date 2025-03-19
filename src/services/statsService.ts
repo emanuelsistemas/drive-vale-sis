@@ -1,7 +1,5 @@
-import { supabase } from './supabase';
-
 /**
- * Serviço para gerenciar estatísticas e logs de acesso aos arquivos
+ * Serviço MOCK para gerenciar estatísticas e logs de acesso aos arquivos
  */
 
 // Tipos para tabela de logs de acesso
@@ -25,27 +23,81 @@ export interface FileStats {
   last_accessed?: string;
 }
 
-// CRUD para logs de acesso
+// Dados mock para logs de acesso
+const mockAccessLogs: FileAccessLog[] = [
+  {
+    id: 1,
+    file_id: 1,
+    user_id: '1',
+    action_type: 'view',
+    created_at: new Date().toISOString(),
+    ip_address: '192.168.1.1',
+    user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+  },
+  {
+    id: 2,
+    file_id: 1,
+    user_id: '2',
+    action_type: 'download',
+    created_at: new Date().toISOString(),
+    ip_address: '192.168.1.2',
+    user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
+  },
+  {
+    id: 3,
+    file_id: 2,
+    user_id: '1',
+    action_type: 'edit',
+    created_at: new Date().toISOString(),
+    ip_address: '192.168.1.1',
+    user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+  }
+];
+
+// Dados mock para estatísticas de arquivos
+const mockFileStats: FileStats[] = [
+  {
+    file_id: 1,
+    views: 10,
+    downloads: 5,
+    shares: 2,
+    last_accessed: new Date().toISOString()
+  },
+  {
+    file_id: 2,
+    views: 7,
+    downloads: 3,
+    shares: 1,
+    last_accessed: new Date().toISOString()
+  }
+];
+
+// CRUD para logs de acesso (MOCK)
 export const accessLogCrud = {
   // Registrar um novo acesso
   async create(data: FileAccessLog) {
     try {
-      const { data: result, error } = await supabase
-        .from('file_access_logs')
-        .insert([data])
-        .select();
+      console.log(`Mock: Registrando acesso ao arquivo ${data.file_id} pelo usuário ${data.user_id}`, data);
       
-      if (error) {
-        console.error('Erro ao registrar acesso:', error);
-        throw error;
-      }
+      // Gerar ID único
+      const newId = mockAccessLogs.length > 0 ? Math.max(...mockAccessLogs.map(log => log.id || 0)) + 1 : 1;
+      
+      // Adicionar data de criação
+      const newLog = {
+        ...data,
+        id: newId,
+        created_at: data.created_at || new Date().toISOString()
+      };
+      
+      // Adicionar ao mock
+      mockAccessLogs.push(newLog);
       
       // Atualizar estatísticas do arquivo
       await updateFileStats(data.file_id, data.action_type);
       
-      return result?.[0];
+      return newLog;
     } catch (error) {
-      console.error('Erro ao registrar acesso:', error);
+      console.error('Erro ao registrar acesso (mock):', error);
       throw error;
     }
   },
@@ -53,23 +105,19 @@ export const accessLogCrud = {
   // Obter logs de acesso de um arquivo
   async getByFileId(fileId: number) {
     try {
-      const { data, error } = await supabase
-        .from('file_access_logs')
-        .select(`
-          *,
-          user:user_id(dv_nome, dv_email)
-        `)
-        .eq('file_id', fileId)
-        .order('created_at', { ascending: false });
+      console.log(`Mock: Obtendo logs de acesso do arquivo ${fileId}`);
       
-      if (error) {
-        console.error(`Erro ao buscar logs de acesso do arquivo ${fileId}:`, error);
-        throw error;
-      }
+      // Filtrar logs pelo arquivo
+      const logs = mockAccessLogs.filter(log => log.file_id === fileId);
       
-      return data;
+      // Ordenar por data de criação (mais recentes primeiro)
+      logs.sort((a, b) => {
+        return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime();
+      });
+      
+      return logs;
     } catch (error) {
-      console.error(`Erro ao buscar logs de acesso do arquivo ${fileId}:`, error);
+      console.error(`Erro ao buscar logs de acesso do arquivo ${fileId} (mock):`, error);
       throw error;
     }
   },
@@ -77,163 +125,134 @@ export const accessLogCrud = {
   // Obter logs de acesso de um usuário
   async getByUserId(userId: string) {
     try {
-      const { data, error } = await supabase
-        .from('file_access_logs')
-        .select(`
-          *,
-          file:file_id(name, path)
-        `)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+      console.log(`Mock: Obtendo logs de acesso do usuário ${userId}`);
       
-      if (error) {
-        console.error(`Erro ao buscar logs de acesso do usuário ${userId}:`, error);
-        throw error;
-      }
+      // Filtrar logs pelo usuário
+      const logs = mockAccessLogs.filter(log => log.user_id === userId);
       
-      return data;
+      // Ordenar por data de criação (mais recentes primeiro)
+      logs.sort((a, b) => {
+        return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime();
+      });
+      
+      return logs;
     } catch (error) {
-      console.error(`Erro ao buscar logs de acesso do usuário ${userId}:`, error);
+      console.error(`Erro ao buscar logs de acesso do usuário ${userId} (mock):`, error);
       throw error;
     }
   },
   
-  // Obter logs de acesso de uma empresa
+  // Obter logs de acesso de uma empresa (MOCK)
   async getByEmpresaId(empresaId: number) {
     try {
-      const { data, error } = await supabase
-        .from('file_access_logs')
-        .select(`
-          *,
-          file:file_id(name, path),
-          user:user_id(dv_nome, dv_email)
-        `)
-        .eq('empresa_id', empresaId)
-        .order('created_at', { ascending: false });
+      console.log(`Mock: Obtendo logs de acesso da empresa ${empresaId}`);
       
-      if (error) {
-        console.error(`Erro ao buscar logs de acesso da empresa ${empresaId}:`, error);
-        throw error;
-      }
+      // Filtrar logs pela empresa
+      const logs = mockAccessLogs.filter(log => log.empresa_id === empresaId);
       
-      return data;
+      // Ordenar por data de criação (mais recentes primeiro)
+      logs.sort((a, b) => {
+        return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime();
+      });
+      
+      return logs;
     } catch (error) {
-      console.error(`Erro ao buscar logs de acesso da empresa ${empresaId}:`, error);
+      console.error(`Erro ao buscar logs de acesso da empresa ${empresaId} (mock):`, error);
       throw error;
     }
   }
 };
 
-// Funções para estatísticas de arquivo
+// Funções para estatísticas de arquivo (MOCK)
 export const fileStatsCrud = {
   // Obter estatísticas de um arquivo
   async getByFileId(fileId: number) {
     try {
-      const { data, error } = await supabase
-        .from('file_stats')
-        .select('*')
-        .eq('file_id', fileId)
-        .single();
+      console.log(`Mock: Obtendo estatísticas do arquivo ${fileId}`);
       
-      if (error) {
-        if (error.code === 'PGRST116') { // Nenhum resultado encontrado
-          return {
-            file_id: fileId,
-            views: 0,
-            downloads: 0,
-            shares: 0
-          };
-        }
-        
-        console.error(`Erro ao buscar estatísticas do arquivo ${fileId}:`, error);
-        throw error;
+      // Buscar no mock ou criar novas estatísticas
+      const stats = mockFileStats.find(s => s.file_id === fileId);
+      
+      if (!stats) {
+        return {
+          file_id: fileId,
+          views: 0,
+          downloads: 0,
+          shares: 0
+        };
       }
       
-      return data;
+      return stats;
     } catch (error) {
-      console.error(`Erro ao buscar estatísticas do arquivo ${fileId}:`, error);
+      console.error(`Erro ao buscar estatísticas do arquivo ${fileId} (mock):`, error);
       throw error;
     }
   },
   
-  // Obter arquivos mais acessados
+  // Obter arquivos mais acessados (MOCK)
   async getMostAccessed(limit = 10, userId?: string, empresaId?: number) {
     try {
-      let query = supabase
-        .from('file_stats')
-        .select(`
-          *,
-          file:file_id(*)
-        `)
-        .order('views', { ascending: false })
-        .limit(limit);
+      console.log(`Mock: Obtendo arquivos mais acessados (limit: ${limit}, userId: ${userId}, empresaId: ${empresaId})`);
       
+      // Clonar as estatísticas para não modificar o original
+      let stats = [...mockFileStats];
+      
+      // Filtrar por usuário ou empresa se necessário (mock simples)
       if (userId || empresaId) {
-        query = query.or(`file.user_id.eq.${userId},file.empresa_id.eq.${empresaId}`);
+        stats = stats.filter(s => s.file_id % 2 === 0); // Simples, só para demonstração
       }
       
-      const { data, error } = await query;
+      // Ordenar por visualizações (mais visualizados primeiro)
+      stats.sort((a, b) => b.views - a.views);
       
-      if (error) {
-        console.error('Erro ao buscar arquivos mais acessados:', error);
-        throw error;
-      }
+      // Limitar resultados
+      stats = stats.slice(0, limit);
       
-      return data;
+      return stats;
     } catch (error) {
-      console.error('Erro ao buscar arquivos mais acessados:', error);
+      console.error('Erro ao buscar arquivos mais acessados (mock):', error);
       throw error;
     }
   },
   
-  // Obter arquivos mais baixados
+  // Obter arquivos mais baixados (MOCK)
   async getMostDownloaded(limit = 10, userId?: string, empresaId?: number) {
     try {
-      let query = supabase
-        .from('file_stats')
-        .select(`
-          *,
-          file:file_id(*)
-        `)
-        .order('downloads', { ascending: false })
-        .limit(limit);
+      console.log(`Mock: Obtendo arquivos mais baixados (limit: ${limit}, userId: ${userId}, empresaId: ${empresaId})`);
       
+      // Clonar as estatísticas para não modificar o original
+      let stats = [...mockFileStats];
+      
+      // Filtrar por usuário ou empresa se necessário (mock simples)
       if (userId || empresaId) {
-        query = query.or(`file.user_id.eq.${userId},file.empresa_id.eq.${empresaId}`);
+        stats = stats.filter(s => s.file_id % 2 === 0); // Simples, só para demonstração
       }
       
-      const { data, error } = await query;
+      // Ordenar por downloads (mais baixados primeiro)
+      stats.sort((a, b) => b.downloads - a.downloads);
       
-      if (error) {
-        console.error('Erro ao buscar arquivos mais baixados:', error);
-        throw error;
-      }
+      // Limitar resultados
+      stats = stats.slice(0, limit);
       
-      return data;
+      return stats;
     } catch (error) {
-      console.error('Erro ao buscar arquivos mais baixados:', error);
+      console.error('Erro ao buscar arquivos mais baixados (mock):', error);
       throw error;
     }
   }
 };
 
-// Função auxiliar para atualizar estatísticas de arquivo
+// Função auxiliar para atualizar estatísticas de arquivo (MOCK)
 async function updateFileStats(fileId: number, actionType: string) {
   try {
-    // Verificar se já existem estatísticas para o arquivo
-    const { data, error } = await supabase
-      .from('file_stats')
-      .select('*')
-      .eq('file_id', fileId);
+    console.log(`Mock: Atualizando estatísticas do arquivo ${fileId} para ação ${actionType}`);
     
-    if (error) {
-      console.error(`Erro ao verificar estatísticas do arquivo ${fileId}:`, error);
-      throw error;
-    }
+    // Buscar no mock
+    const statIndex = mockFileStats.findIndex(s => s.file_id === fileId);
     
     // Se não existem estatísticas, criar um novo registro
-    if (!data || data.length === 0) {
-      const newStats: any = {
+    if (statIndex === -1) {
+      const newStats: FileStats = {
         file_id: fileId,
         views: 0,
         downloads: 0,
@@ -246,43 +265,31 @@ async function updateFileStats(fileId: number, actionType: string) {
       else if (actionType === 'download') newStats.downloads = 1;
       else if (actionType === 'share') newStats.shares = 1;
       
-      const { error: insertError } = await supabase
-        .from('file_stats')
-        .insert([newStats]);
-      
-      if (insertError) {
-        console.error(`Erro ao criar estatísticas do arquivo ${fileId}:`, insertError);
-        throw insertError;
-      }
+      // Adicionar ao mock
+      mockFileStats.push(newStats);
       
       return;
     }
     
     // Se já existem estatísticas, atualizar o registro
-    const updateData: any = {
+    const updateData = {
+      ...mockFileStats[statIndex],
       last_accessed: new Date().toISOString()
     };
     
     // Incrementar o contador apropriado
     if (actionType === 'view') {
-      updateData.views = data[0].views + 1;
+      updateData.views += 1;
     } else if (actionType === 'download') {
-      updateData.downloads = data[0].downloads + 1;
+      updateData.downloads += 1;
     } else if (actionType === 'share') {
-      updateData.shares = data[0].shares + 1;
+      updateData.shares += 1;
     }
     
-    const { error: updateError } = await supabase
-      .from('file_stats')
-      .update(updateData)
-      .eq('file_id', fileId);
-    
-    if (updateError) {
-      console.error(`Erro ao atualizar estatísticas do arquivo ${fileId}:`, updateError);
-      throw updateError;
-    }
+    // Atualizar no mock
+    mockFileStats[statIndex] = updateData;
   } catch (error) {
-    console.error(`Erro ao atualizar estatísticas do arquivo ${fileId}:`, error);
+    console.error(`Erro ao atualizar estatísticas do arquivo ${fileId} (mock):`, error);
     throw error;
   }
 }
@@ -311,83 +318,17 @@ export const logFileAccess = async (
   }
 };
 
-// Função para criar tabelas de estatísticas no Supabase
+// Função para criar tabelas de estatísticas (MOCK)
 export const createStatsTables = async () => {
   try {
-    // Verificar se a tabela de logs de acesso existe
-    const { error: checkLogsError } = await supabase.rpc('exec', { 
-      query: `SELECT to_regclass('public.file_access_logs');` 
-    });
+    console.log('[MOCK] Simulação de criação de tabelas de estatísticas');
     
-    if (checkLogsError) {
-      console.log('Criando tabela de logs de acesso...');
-      
-      // Criar a tabela file_access_logs
-      const createLogsQuery = `
-        CREATE TABLE IF NOT EXISTS file_access_logs (
-          id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-          file_id BIGINT REFERENCES files(id) ON DELETE CASCADE,
-          user_id TEXT NOT NULL,
-          empresa_id BIGINT REFERENCES dv_cad_empresas_drive(id),
-          action_type TEXT CHECK (action_type IN ('view', 'download', 'edit', 'share', 'delete')) NOT NULL,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          ip_address TEXT,
-          user_agent TEXT
-        );
-        
-        CREATE INDEX IF NOT EXISTS idx_file_access_logs_file_id ON file_access_logs(file_id);
-        CREATE INDEX IF NOT EXISTS idx_file_access_logs_user_id ON file_access_logs(user_id);
-        CREATE INDEX IF NOT EXISTS idx_file_access_logs_empresa_id ON file_access_logs(empresa_id);
-        CREATE INDEX IF NOT EXISTS idx_file_access_logs_action_type ON file_access_logs(action_type);
-        CREATE INDEX IF NOT EXISTS idx_file_access_logs_created_at ON file_access_logs(created_at);
-      `;
-      
-      const { error: createLogsError } = await supabase.rpc('exec', { 
-        query: createLogsQuery 
-      });
-      
-      if (createLogsError) {
-        console.error('Erro ao criar tabela de logs de acesso:', createLogsError);
-        throw createLogsError;
-      }
-    }
-    
-    // Verificar se a tabela de estatísticas existe
-    const { error: checkStatsError } = await supabase.rpc('exec', { 
-      query: `SELECT to_regclass('public.file_stats');` 
-    });
-    
-    if (checkStatsError) {
-      console.log('Criando tabela de estatísticas de arquivo...');
-      
-      // Criar a tabela file_stats
-      const createStatsQuery = `
-        CREATE TABLE IF NOT EXISTS file_stats (
-          file_id BIGINT PRIMARY KEY REFERENCES files(id) ON DELETE CASCADE,
-          views BIGINT DEFAULT 0,
-          downloads BIGINT DEFAULT 0,
-          shares BIGINT DEFAULT 0,
-          last_accessed TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-        
-        CREATE INDEX IF NOT EXISTS idx_file_stats_views ON file_stats(views);
-        CREATE INDEX IF NOT EXISTS idx_file_stats_downloads ON file_stats(downloads);
-        CREATE INDEX IF NOT EXISTS idx_file_stats_last_accessed ON file_stats(last_accessed);
-      `;
-      
-      const { error: createStatsError } = await supabase.rpc('exec', { 
-        query: createStatsQuery 
-      });
-      
-      if (createStatsError) {
-        console.error('Erro ao criar tabela de estatísticas de arquivo:', createStatsError);
-        throw createStatsError;
-      }
-    }
+    // Como esta é uma implementação mock, vamos apenas simular que a criação foi bem-sucedida
+    console.log('[MOCK] Tabelas simuladas criadas com sucesso');
     
     return { success: true };
   } catch (error) {
-    console.error('Erro ao criar tabelas de estatísticas:', error);
+    console.error('[MOCK] Erro ao simular tabelas de estatísticas:', error);
     return { success: false, error };
   }
 };

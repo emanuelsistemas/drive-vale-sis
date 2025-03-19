@@ -1,10 +1,11 @@
 /* Estilo personalizado para o título da página */
-@font-face {
-  font-family: 'MuseoModerno';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('./fonts/MuseoModerno-Bold.woff2') format('woff2');
+/* A fonte MuseoModerno é importada via Google Fonts no index.html */
+
+/* Adicionar definição de fonte personalizada */
+body {
+  font-family: 'MuseoModerno', 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 /* Estilo para o título na aba do navegador */

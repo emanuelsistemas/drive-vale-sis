@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/root/m-software/drive-vale-sis/supabase-mcp-server/supabase_mcp/main.py", line 3, in <module>
+    from supabase_mcp.core.container import Container
+  File "/root/m-software/drive-vale-sis/supabase-mcp-server/supabase_mcp/core/container.py", line 4, in <module>
+    from supabase_mcp.services.api.api_client import ManagementAPIClient
+  File "/root/m-software/drive-vale-sis/supabase-mcp-server/supabase_mcp/services/api/api_client.py", line 18, in <module>
+    from supabase_mcp.settings import Settings
+  File "/root/m-software/drive-vale-sis/supabase-mcp-server/supabase_mcp/settings.py", line 142, in <module>
+    settings = Settings.with_config(find_config_file())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/m-software/drive-vale-sis/supabase-mcp-server/supabase_mcp/settings.py", line 124, in with_config
+    instance = SettingsWithConfig()
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/root/m-software/drive-vale-sis/supabase_venv/lib/python3.12/site-packages/pydantic_settings/main.py", line 176, in __init__
+    super().__init__(
+  File "/root/m-software/drive-vale-sis/supabase_venv/lib/python3.12/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 4 validation errors for SettingsWithConfig
+react_app_admin_password
+  Extra inputs are not permitted [type=extra_forbidden, input_value='admin123', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+port
+  Extra inputs are not permitted [type=extra_forbidden, input_value='3001', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+react_app_api_url
+  Extra inputs are not permitted [type=extra_forbidden, input_value='http://localhost:8000', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+react_app_use_postgres
+  Extra inputs are not permitted [type=extra_forbidden, input_value='true', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
